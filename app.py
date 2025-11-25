@@ -6,15 +6,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 app = Flask(__name__)
 
 # Load CSV file
-train_data = pd.read_csv("models/netflix_titles.csv")
+train_data = pd.read_csv("models/netflix_titles_updated.csv")
 
 # Fill NaN values for relevant columns
-for col in ['title', 'cast', 'description', 'director']:
+for col in ['title', 'description', 'director']:
     train_data[col] = train_data[col].fillna('')
 
 # Create 'Tags' column for TF-IDF
 train_data['Tags'] = (train_data['title'] + ' ' +
-                      train_data['cast'] + ' ' +
                       train_data['description'] + ' ' +
                       train_data['director']).str.lower()
 
@@ -39,7 +38,7 @@ def keyword_based_recommendations(train_data, keyword, top_n=10):
     recommended['similarity'] = cosine_sim[top_indices]
     recommended = recommended[recommended['similarity'] > 0]
 
-    return recommended[['title', 'cast', 'description', 'director']]
+    return recommended[['title', 'rating_num', 'description', 'director']]
 
 
 # Content-based recommendations
@@ -61,7 +60,7 @@ def content_based_recommendations(train_data, item_name, top_n=10):
 
     top_indices = [i[0] for i in sim_scores[1:top_n + 1]]
 
-    return train_data.iloc[top_indices][['title', 'cast', 'description', 'director']]
+    return train_data.iloc[top_indices][['title', 'rating_num', 'description', 'director']]
 
 
 # Routes
